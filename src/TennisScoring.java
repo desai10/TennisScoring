@@ -14,49 +14,57 @@ public class TennisScoring {
     }
 
     public void evalAndPrintScore() {
+        boolean isTieBreaker = false;
         for(char c : this.points.toUpperCase().toCharArray()) {
             if(c == 'A')
                 this.pntA++;
             else
                 this.pntB++;
-            this.checkGame();
+            isTieBreaker = this.checkGame(isTieBreaker);
         }
-        this.printResult();
+        this.printResult(isTieBreaker);
     }
 
-    public void checkGame() {
-        if(this.pntA >= 4 && this.pntA - this.pntB >= 2) {
+    public boolean checkGame(boolean isTieBreaker) {
+        if((this.pntA >= 4 || isTieBreaker) && this.pntA - this.pntB >= 2) {
             this.pntA = 0;
             this.pntB = 0;
             this.gameA++;
-            this.checkSet();
+            isTieBreaker = this.checkSet(isTieBreaker);
         }
-        else if(this.pntB >= 4 && this.pntB - this.pntA >= 2) {
+        else if((this.pntB >= 4 || isTieBreaker) && this.pntB - this.pntA >= 2) {
             this.pntA = 0;
             this.pntB = 0;
             this.gameB++;
-            this.checkSet();
+            isTieBreaker = this.checkSet(isTieBreaker);
         }
+        return isTieBreaker;
     }
 
-    public void checkSet() {
-        if(this.gameA >= 6 && this.gameA - this.gameB >= 2) {
+    public boolean checkSet(boolean isTieBreaker) {
+        if((this.gameA >= (6 + (isTieBreaker ? 1 : 0))) && (this.gameA - this.gameB >= 2 || isTieBreaker)) {
             this.gameA = 0;
             this.gameB = 0;
             this.setA++;
         }
-        else if(this.gameB >= 6 && this.gameB - this.gameA >= 2) {
+        else if((this.gameB >= (6 + (isTieBreaker ? 1 : 0))) && (this.gameB - this.gameA >= 2 || isTieBreaker)) {
             this.gameA = 0;
             this.gameB = 0;
             this.setB++;
         }
+        return this.gameA == this.gameB && this.gameA == 6;
     }
 
-    public void printResult() {
+    public void printResult(boolean isTieBreaker) {
         System.out.println("player:\t\tA\tB");
         System.out.println("sets:\t\t" + this.setA + "\t" + this.setB);
         System.out.println("games:\t\t" + this.gameA + "\t" + this.gameB);
-        this.printPoints();
+        if(isTieBreaker) {
+            System.out.println("points:\t\t" + this.pntA + "\t" + this.pntB);
+        }
+        else {
+            this.printPoints();
+        }
     }
 
     public void printPoints() {
@@ -77,7 +85,8 @@ public class TennisScoring {
 
 
     public static void main(String[] args) {
-        String input = "ABABABAAB";
+        String input = "AAAAAAAAAAAABBBBAAAAAAAABBBBBBBBBBBBBBBBBBBBAAAABABB";
+//        String input = "ABABABABB";
         TennisScoring tennis = new TennisScoring(input);
         tennis.evalAndPrintScore();
     }
